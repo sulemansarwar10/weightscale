@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+</head>
+
+<body>
+    <h1>hello</h1>
+    <div id="error"></div>
+    <div id="ports"></div>
+<form>
+
+    <input type="button" onclick="listSerialPorts()" value="show ports">
+    <input type="button" onclick="SerialPorts()" value="send ports">
+  
+    <br>
+    <label for="port">Choose a port:</label>
+    
+    <select name="port" id="port">
+        <option value="COM1">COM1</option>
+        <option value="COM2">COM2</option>
+        <option value="COM3">COM3</option>
+        <option value="COM4">COM4</option>
+        <option value="COM5">COM5</option>
+        <option value="COM6">COM6</option>
+        <option value="COM7">COM7</option>
+        <option value="COM8">COM8</option>
+        <option value="COM9">COM9</option>
+        <option value="COM10">COM10</option>
+        <option value="COM11">COM11</option>
+        <option value="COM12">COM12</option>
+    </select>
+</form>
+</body>
+<script>
+     const electron = require('electron');
+    const { ipcRenderer } = electron;
+    const { SerialPort } = require('serialport')
+    const tableify = require('tableify')
+    async function listSerialPorts() {
+        await SerialPort.list().then((ports, err) => {
+            if (err) {
+                document.getElementById('error').textContent = err.message
+                return
+            } else {
+                document.getElementById('error').textContent = ''
+            }
+            console.log('ports', ports);
+
+            if (ports.length === 0) {
+                document.getElementById('error').textContent = 'No ports discovered'
+            }
+
+            tableHTML = tableify(ports)
+            document.getElementById('ports').innerHTML = tableHTML
+        })
+    }
+    async function SerialPorts() {
+    let reply = ipcRenderer.sendSync('portopen','a string', 10);
+    console.log(reply)
+    }
+</script>
+
+</html>

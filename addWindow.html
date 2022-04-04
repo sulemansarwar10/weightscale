@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Shopping List History</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+</head>
+
+<body>
+  <nav>
+    <div class="nav-wrapper">
+      <a class="brand-logo center">Shopping List</a>
+    </div>
+  </nav>
+
+  <table class="list" id="storeList">
+    <thead>
+      <tr>
+        <th>Product Code</th>
+        <th>Product Name</th>
+        <th>Qty</th>
+        <th>Price</th>
+        <th>Date</th>
+        <th>Time</th>
+        <th>Operation</th>
+
+      </tr>
+    </thead>
+    <tbody>
+
+    </tbody>
+  </table>
+
+
+  <div id="table"></div>
+
+
+  <script>
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+    const Datastore = require('nedb')
+    const tableify = require('tableify')
+    let users = new Datastore({ filename: 'users.db', autoload: true })
+
+
+    updatetable();
+    ipcRenderer.on('item:add', function (e, item) {
+
+      insertNewRecord(item)
+    });
+
+
+
+    // ul.addEventListener('dblclick', removeItem);
+
+    // function removeItem(e) {
+    //   event.target.remove();
+    //   if (ul.children.length == 0) {
+    //     ul.className = '';
+    //   }
+    // }
+
+    function updatetable() {
+
+      users.find({}, function (err, docs) {
+        console.log(JSON.stringify(docs)); // logs all of the data in docs
+        alldata = docs
+        alldata.sort(function (a, b) { return a.ticketno - b.ticketno });
+
+        alldata.map((item, ind) => {
+          insertNewRecord(item)
+        })
+
+
+      });
+    }
+
+
+    function buildtable(data) {
+      tableHTML = tableify(data)
+      document.getElementById('table').innerHTML = tableHTML
+    }
+
+
+    //Insert the data
+    function insertNewRecord(data) {
+      var table = document.getElementById("storeList").getElementsByTagName('tbody')[0];
+      var newRow = table.insertRow(table.length);
+      cell1 = newRow.insertCell(0);
+      cell1.innerHTML = data.ticketno;
+      cell2 = newRow.insertCell(1);
+      cell2.innerHTML = data.name;
+      cell3 = newRow.insertCell(2);
+      cell3.innerHTML = data.quantity;
+      cell4 = newRow.insertCell(3);
+      cell4.innerHTML = data.price;
+      cell5 = newRow.insertCell(4);
+      cell5.innerHTML = data.date;
+      cell6 = newRow.insertCell(5);
+      cell6.innerHTML = data.time;
+      cell7 = newRow.insertCell(6);
+      cell7.innerHTML = `<button onClick="onEdit(this)">Edit</button> <button onClick="onPrint(this)">Print</button>`;
+    }
+
+
+    function onEdit(item) {
+
+      let selectedRow = item.parentElement.parentElement
+      let ticket = Number(selectedRow.cells[0].innerHTML)
+      users.findOne({ ticketno: ticket }, function (err, doc) {
+
+        console.log("editbtn", doc)
+      });
+    }
+
+
+    function onDelete(item) {
+      let selectedRow = item.parentElement.parentElement
+      let ticket = Number(selectedRow.cells[0].innerHTML)
+      users.remove({ ticketno: ticket }, function (err, doc) {
+        console.log("deletbtn", doc)
+        updatetable();
+      });
+    }
+
+
+    function onPrint(item) {
+      let selectedRow = item.parentElement.parentElement;
+      let ticket = Number(selectedRow.cells[0].innerHTML);
+
+      users.findOne({ ticketno: ticket }, function (err, doc) {
+        console.log("printbtn", doc)
+
+        ipcRenderer.send('item:print', doc);
+
+      });
+    }
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Document</title>
+    <style>
+        body {
+            background-color: white;
+            text-align: center;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        .print {
+            margin: 20px;
+            max-width: 750px;
+            text-decoration: none;
+            outline: none;
+            font-size: 25px
+        }
+    </style>
+</head>
+
+<body>
+    <div id="print">
+        <h1>UPVC-Pipe Department</h1>
+        <table class="print" style="width:100%">
+
+            <tr>
+                <td>Date</td>
+                <td id="date">Mon Mar 14 2022 </td>
+                <td>Time</td>
+                <td id="time"> 10:39:18</td>
+            </tr>
+            <tr>
+                <td colspan="2"><strong> Legend</strong></td>
+                <td colspan="2"><strong> Weight</strong></td>
+
+
+            </tr>
+            <tr>
+                <td colspan="2"><strong>First Weight:</strong>(kg)</td>
+                <td colspan="2" id="trolleyp">1</td>
+
+            </tr>
+            <tr>
+                <td colspan="2"><strong> Second Weight:</strong>(kg)</td>
+                <td colspan="2" id="scalep">10</td>
+
+            </tr>
+
+            <tr>
+                <td colspan="2"><strong>Net Weight:</strong>(kg)</td>
+                <td colspan="2" id="dispatchp">9</td>
+            </tr>
+            <tr style="height:50px">
+                <td><strong>Remarks:</strong></td>
+                <td colspan="3" id="remarksp">This is Weight of production.</td>
+            </tr>
+            <tr style="height:80px">
+                <td id="userp">Prepared By</td>
+                <td style="width:25%"></td>
+                <td>Received By</td>
+                <td style="width:25%"></td>
+            </tr>
+            <tr>
+                <td colspan="4" style="height:20px">Developed by Electrical Department</td>
+            </tr>
+        </table>
+    </div>
+</body>
+<script>
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+    ipcRenderer.on('item:printitem', async function (event, item) {
+
+        console.log("print", item)
+        document.getElementById("date").innerHTML = item.date
+        document.getElementById("time").innerHTML = item.time
+        document.getElementById("scalep").innerHTML = item.name
+        document.getElementById("trolleyp").innerHTML = item.price
+        document.getElementById("dispatchp").innerHTML = item.quantity
+        document.getElementById("remarksp").innerHTML = item.ticketno
+        await window.print()
+        return 1
+    });
+
+
+</script>
+
+</html>

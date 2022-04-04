@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>Shopping Item</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+</head>
+
+<body>
+  <div class="container">
+    <form>
+      <div>
+        <label>Enter Item Name</label>
+        <input type="text" id="item-name" autofocus>
+      </div>
+      <div>
+        <label>Enter Quantity</label>
+        <input type="number" id="item-quantity" autofocus>
+      </div>
+      <div>
+        <label>Enter Price</label>
+        <input type="number" id="item-price" autofocus>
+      </div>
+      <button class="waves-effect waves-light btn" id="btn" type="submit">Add Item</button>
+    </form>
+  </div>
+
+  <script>
+    const electron = require('electron');
+    const { ipcRenderer } = electron;
+
+    document.querySelector('form').addEventListener('submit', submitForm);
+
+    function submitForm(e) {
+      e.preventDefault();
+      const name = document.querySelector('#item-name').value;
+      const quantity = document.querySelector('#item-quantity').value;
+      const price = document.querySelector('#item-price').value;
+      const date = String(new Date()).substring(0, 16)
+      const time = String(new Date()).substring(16, 25)
+      // console.log(ipcRenderer);
+      // console.log({ name, quantity, price, date, time });
+      if (name === "" || name === null) {
+        alert("please Enter Name")
+      }
+      else if (quantity === "" || quantity === null) {
+        alert("please Enter Quantity")
+      } else if (price === "" || price === null) {
+        alert("please Enter Price")
+      } else {
+
+        const result = ipcRenderer.sendSync('item:add', { name, quantity, price, date, time });
+        console.log(result)
+        alert(`item added successfully with code ${result}`)
+        document.querySelector('#item-name').value = ""
+        document.querySelector('#item-quantity').value = ""
+        document.querySelector('#item-price').value = ""
+      }
+    }
+  </script>
+
+</body>
+
+</html>
