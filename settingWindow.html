@@ -146,6 +146,16 @@
                     <h5 id="portupdate">Portupdate:</h5>
                 </td>
             </tr>
+            <tr style="height:50px">
+                <td>
+                    <h5>Porton:</h5> 
+                </td>
+
+                <td> <input type="button" onclick="porton()" value="porton"></td>
+                <td>
+                    <h5 id="porton">Porton:</h5>
+                </td>
+            </tr>
         </table>
 
     </div>
@@ -217,7 +227,12 @@
 
         }
     }
+    function porton() {
 
+let reply = ipcRenderer.sendSync('porton', 'a string', 10);
+console.log(reply)
+document.getElementById("porton").innerHTML = String(reply)
+}
 
 
 </script>

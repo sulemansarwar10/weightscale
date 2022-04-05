@@ -31,6 +31,7 @@ function portopen() {
   })
 }
 function portclose() {
+  console.log('closing port: ')
   Port.close(function (err) {
     if (err) {
       return console.log('Error closing port: ', err.message)
@@ -39,14 +40,15 @@ function portclose() {
 }
 
 function dataon() {
-
+console.log("porton")
   parser.on('data', function (data) {
 
-    console.log('Received data from port: ' + data.substring(data.search("+"), data.length - 2));
+    console.log('Received data from port: ' +  data.substring(data.indexOf(",",data.indexOf("GS"))+2, data.length - 2).trim());
     console.log('Received data from port: ' + data);
-    weight = Number(data.substring(data.length - 8, data.length - 2))
+    weight = Number(data.substring(data.indexOf(",",data.indexOf("GS"))+2, data.length - 2).trim())
 
   });
+
 }
 function messagewrite() {
   Port.write('R', function (err) {
@@ -211,7 +213,12 @@ ipcMain.on('portupdate', (event, someArgument) => {
   //console.log(Port.isOpen)
   event.returnValue = someArgument;
 })
+ipcMain.on('porton', (event, someArgument) => {
 
+  dataon();
+  //console.log(Port.isOpen)
+  event.returnValue = "done";
+})
 
 ipcMain.on('messagewrite', (event, someArgument) => {
 
