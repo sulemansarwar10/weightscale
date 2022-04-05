@@ -12,7 +12,7 @@
   "author": "Brad Traversy",
   "license": "ISC",
   "dependencies": {
-    "electron": "^17.1.2",
+    "electron": "^18.0.1",
     "electron-builder": "^22.14.13",
     "electron-store": "^8.0.1",
     "nedb": "^1.8.0",

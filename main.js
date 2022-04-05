@@ -6,14 +6,22 @@ const { SerialPort } = require('serialport')
 const { ReadlineParser } = require('@serialport/parser-readline')
 let users = new Datastore({ filename: 'users.db', autoload: true })
 const Store = require('electron-store');
-let weight = 0
 const store = new Store();
+let weight = 0
+let pt
+if (!store.get('port')) {
+
+  pt = "COM3"
+}
+else {
+  pt = store.get('port')
+}
 // SET ENV
 process.env.NODE_ENV = 'development';
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
-
-var Port = new SerialPort({ path: store.get('port'), baudRate: 9600, autoOpen: false }, function (err) {
+console.log(pt)
+var Port = new SerialPort({ path: pt, baudRate: 9600, autoOpen: false }, function (err) {
   if (err) {
     return console.log('Error: ', err.message)
   }
@@ -40,12 +48,12 @@ function portclose() {
 }
 
 function dataon() {
-console.log("porton")
+  console.log("porton")
   parser.on('data', function (data) {
 
-    console.log('Received data from port: ' +  data.substring(data.indexOf(",",data.indexOf("GS"))+2, data.length - 2).trim());
+    console.log('Received data from port: ' + data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim());
     console.log('Received data from port: ' + data);
-    weight = Number(data.substring(data.indexOf(",",data.indexOf("GS"))+2, data.length - 2).trim())
+    weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
 
   });
 
@@ -166,13 +174,32 @@ function createprintWindow() {
   });
 }
 
+// ipcMain.on('item:print', (event, someArgument) => {
+//   console.log(someArgument)
+//   if (!printWindow)
+//     createprintWindow();
+//   printWindow.webContents.send('item:printitem', someArgument)
+
+// })
 ipcMain.on('item:print', (event, someArgument) => {
   console.log(someArgument)
-  if (!printWindow)
+  if (!printWindow) {
     createprintWindow();
-  printWindow.webContents.send('item:printitem', someArgument)
+    printWindow.webContents.on('did-finish-load', function () {
+      printWindow.webContents.send('item:printitem', someArgument)
+      //printWindow.close()
 
+    })
+  }
+  else {
+    printWindow.webContents.send('item:printitem', someArgument)
+
+  }
+
+  event.returnValue = "done";
 })
+
+
 ipcMain.on('portopen', (event, someArgument) => {
 
   Port.open(function (err) {
@@ -257,7 +284,7 @@ ipcMain.on('item:add', function (e, item) {
     users.insert(item, function (err, newDoc) {
       if (mainWindow)
         mainWindow.webContents.send('item:add', newDoc);
-      e.returnValue = newDoc.ticketno
+      e.returnValue = newDoc
     });
   });
 

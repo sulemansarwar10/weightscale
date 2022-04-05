@@ -52,15 +52,15 @@
 
       document.querySelector('#item-second').value = ""
       document.querySelector('#item-remarks').value = ""
-
+      ipcRenderer.sendSync('item:print', result);
 
     }
 
     function update() {
       let reply = ipcRenderer.sendSync('weightvalue', 'a string', 10);
-        console.log("weight",reply)
+      console.log("weight", reply)
       //  document.getElementById("portstatus").innerHTML = String(reply)
-   
+
       document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
       setTimeout(update, 500);
     }
