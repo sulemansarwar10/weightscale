@@ -88,10 +88,10 @@
         console.log("print", item)
         document.getElementById("date").innerHTML = item.date
         document.getElementById("time").innerHTML = item.time
-        document.getElementById("scalep").innerHTML = item.name
-        document.getElementById("trolleyp").innerHTML = item.price
-        document.getElementById("dispatchp").innerHTML = item.quantity
-        document.getElementById("remarksp").innerHTML = item.ticketno
+        document.getElementById("scalep").innerHTML = item.firstweight
+        document.getElementById("trolleyp").innerHTML = item.secondweight
+        document.getElementById("dispatchp").innerHTML = item.netweight
+        document.getElementById("remarksp").innerHTML = item.remarks
         await window.print()
         return 1
     });

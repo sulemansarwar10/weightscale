@@ -10,16 +10,20 @@
   <div class="container">
     <form>
       <div>
-        <label>Enter Item Name</label>
-        <input type="text" id="item-name" autofocus>
+        <label>First Weight</label>
+        <input type="number" id="item-first" autofocus>
       </div>
       <div>
-        <label>Enter Quantity</label>
-        <input type="number" id="item-quantity" autofocus>
+        <label>Second Weight</label>
+        <input type="number" id="item-second" autofocus>
       </div>
       <div>
-        <label>Enter Price</label>
-        <input type="number" id="item-price" autofocus>
+        <label>Net Weight</label>
+        <input type="number" id="item-net" disabled>
+      </div>
+      <div>
+        <label>Remarks</label>
+        <input type="text" id="item-remarks" autofocus>
       </div>
       <button class="waves-effect waves-light btn" id="btn" type="submit">Add Item</button>
     </form>
@@ -33,30 +37,38 @@
 
     function submitForm(e) {
       e.preventDefault();
-      const name = document.querySelector('#item-name').value;
-      const quantity = document.querySelector('#item-quantity').value;
-      const price = document.querySelector('#item-price').value;
+      document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
+      const firstweight = document.querySelector('#item-first').value;
+      const secondweight = document.querySelector('#item-second').value;
+      const netweight = document.querySelector('#item-net').value;
+      const remarks = document.querySelector('#item-remarks').value;
       const date = String(new Date()).substring(0, 16)
       const time = String(new Date()).substring(16, 25)
-      // console.log(ipcRenderer);
-      // console.log({ name, quantity, price, date, time });
-      if (name === "" || name === null) {
-        alert("please Enter Name")
-      }
-      else if (quantity === "" || quantity === null) {
-        alert("please Enter Quantity")
-      } else if (price === "" || price === null) {
-        alert("please Enter Price")
-      } else {
 
-        const result = ipcRenderer.sendSync('item:add', { name, quantity, price, date, time });
-        console.log(result)
-        alert(`item added successfully with code ${result}`)
-        document.querySelector('#item-name').value = ""
-        document.querySelector('#item-quantity').value = ""
-        document.querySelector('#item-price').value = ""
-      }
+
+      const result = ipcRenderer.sendSync('item:add', { firstweight, secondweight, netweight, remarks, date, time });
+      console.log(result)
+      //alert(`item added successfully with code ${result}`)
+
+      document.querySelector('#item-second').value = ""
+      document.querySelector('#item-remarks').value = ""
+
+
     }
+
+    function update() {
+      let reply = ipcRenderer.sendSync('weightvalue', 'a string', 10);
+        console.log("weight",reply)
+      //  document.getElementById("portstatus").innerHTML = String(reply)
+   
+      document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
+      setTimeout(update, 500);
+    }
+
+    // Set a timeout that will check for new serialPorts every 2 seconds.
+    // This timeout reschedules itself.
+    setTimeout(update, 500);
+
   </script>
 
 </body>

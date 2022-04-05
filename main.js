@@ -4,15 +4,16 @@ const path = require('path');
 const url = require('url');
 const { SerialPort } = require('serialport')
 const { ReadlineParser } = require('@serialport/parser-readline')
-
 let users = new Datastore({ filename: 'users.db', autoload: true })
-
+const Store = require('electron-store');
+let weight = 0
+const store = new Store();
 // SET ENV
 process.env.NODE_ENV = 'development';
 
 const { app, BrowserWindow, Menu, ipcMain } = electron;
 
-var Port = new SerialPort({ path: "COM4", baudRate: 9600, autoOpen: false }, function (err) {
+var Port = new SerialPort({ path: store.get('port'), baudRate: 9600, autoOpen: false }, function (err) {
   if (err) {
     return console.log('Error: ', err.message)
   }
@@ -22,29 +23,29 @@ const parser = new ReadlineParser({
   delimiter: '\r\n'
 })
 Port.pipe(parser);
-function portopen(){
+function portopen() {
   Port.open(function (err) {
     if (err) {
       return console.log('Error opening port: ', err.message)
     }
-  }) 
+  })
 }
-function portclose(){
+function portclose() {
   Port.close(function (err) {
     if (err) {
       return console.log('Error closing port: ', err.message)
     }
-  }) 
+  })
 }
 
 function dataon() {
 
   parser.on('data', function (data) {
-  
+
     console.log('Received data from port: ' + data.substring(data.search("+"), data.length - 2));
     console.log('Received data from port: ' + data);
-   
-   
+    weight = Number(data.substring(data.length - 8, data.length - 2))
+
   });
 }
 function messagewrite() {
@@ -56,14 +57,7 @@ function messagewrite() {
 
   })
 }
-function update() {
-  
-  setTimeout(update, 500);
-}
 
-// Set a timeout that will check for new serialPorts every 2 seconds.
-// This timeout reschedules itself.
-setTimeout(update, 500);
 
 let mainWindow;
 let addWindow;
@@ -89,6 +83,7 @@ app.on('ready', function () {
   }));
   // Quit app when closed
   mainWindow.on('closed', function () {
+    portclose();
     app.quit();
   });
 
@@ -177,10 +172,72 @@ ipcMain.on('item:print', (event, someArgument) => {
 
 })
 ipcMain.on('portopen', (event, someArgument) => {
-  console.log(someArgument)
-  event.returnValue = 'Hi, sync reply';
+
+  Port.open(function (err) {
+    if (err) {
+      // return console.log('Error opening port: ', err.message)
+      event.returnValue = err.message;
+    }
+    else {
+      event.returnValue = "No Error";
+    }
+  })
 
 })
+ipcMain.on('portclose', (event, someArgument) => {
+
+  console.log(Port.isOpen)
+
+  Port.close(function (err) {
+    if (err) {
+      // return console.log('Error opening port: ', err.message)
+
+      event.returnValue = err.message;
+    }
+    else {
+      event.returnValue = "No Error";
+    }
+  })
+
+})
+ipcMain.on('portstatus', (event, someArgument) => {
+
+  //console.log(Port.isOpen)
+  event.returnValue = Port.isOpen + " + " + Port.path;
+})
+ipcMain.on('portupdate', (event, someArgument) => {
+
+  store.set('port', someArgument);
+  //console.log(Port.isOpen)
+  event.returnValue = someArgument;
+})
+
+
+ipcMain.on('messagewrite', (event, someArgument) => {
+
+  if (Port.isOpen) {
+    Port.write('R', function (err) {
+      if (err) {
+        event.returnValue = err.message;
+        console.log(err.message)
+      }
+      event.returnValue = 'message written';
+    })
+  } else {
+    event.returnValue = 'Port is Not Open';
+  }
+
+})
+ipcMain.on('weightvalue', (event, someArgument) => {
+
+
+
+  event.returnValue = weight;
+})
+
+
+
+
 
 
 // Catch item:add

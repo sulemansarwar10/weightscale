@@ -7,39 +7,152 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Settings</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+    <style>
+        body {
+            background-color: white;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
 
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        th,
+        td {
+            border: 1px solid black;
+        }
+
+        .print {
+            margin: 20px;
+            max-width: 750px;
+            text-decoration: none;
+            outline: none;
+            font-size: 25px
+        }
+    </style>
 </head>
 
 <body>
     <h1>hello</h1>
     <div id="error"></div>
     <div id="ports"></div>
-<form>
+    <form>
 
-    <input type="button" onclick="listSerialPorts()" value="show ports">
-    <input type="button" onclick="SerialPorts()" value="send ports">
-  
-    <br>
-    <label for="port">Choose a port:</label>
-    
-    <select name="port" id="port">
-        <option value="COM1">COM1</option>
-        <option value="COM2">COM2</option>
-        <option value="COM3">COM3</option>
-        <option value="COM4">COM4</option>
-        <option value="COM5">COM5</option>
-        <option value="COM6">COM6</option>
-        <option value="COM7">COM7</option>
-        <option value="COM8">COM8</option>
-        <option value="COM9">COM9</option>
-        <option value="COM10">COM10</option>
-        <option value="COM11">COM11</option>
-        <option value="COM12">COM12</option>
+        <input type="button" onclick="listSerialPorts()" value="show ports">
+        <!-- <br>
+        <h5 id="portopen">portopen</h5>
+        <br>
+        <input type="button" onclick="serialportopen()" value="open ports">
+        <br>
+        <h5 id="portclose">portclose</h5>
+        <br>
+        <input type="button" onclick="serialportclose()" value="close ports">
+
+        <br>
+        <h5 id="portwrite">writemessage</h5>
+        <br>
+        <input type="button" onclick="messagewrite()" value="messagewrite">
+
+        <br>
+        <h5>Portstatus+connectedport:</h5>
+        <h5 id="portstatus">Portstatus:</h5>
+        <br>
+        <input type="button" onclick="portstatus()" value="portstatus">
+
+        <br>
+        <h5 id="portupdate">Portupdate:</h5>
+        <br>
+        <input type="button" onclick="portupdate()" value="portupdate"> -->
+
+        <br>
+
+        <label for="port1">Choose a port:</label>
+        <input type="radio" />
+    </form>
+    <select name="port12" id="port1">
+        <option value="COM1" selected="selected">COM1</option>
+        <option value="COM2" selected="selected">COM2</option>
+        <option value="COM3" selected="selected">COM3</option>
+        <option value="COM4" selected="selected">COM4</option>
+        <option value="COM5" selected="selected">COM5</option>
+        <option value="COM6" selected="selected">COM6</option>
+        <option value="COM7" selected="selected">COM7</option>
+        <option value="COM8" selected="selected">COM8</option>
+        <option value="COM9" selected="selected">COM9</option>
+        <option value="COM10" selected="selected">COM10</option>
+        <option value="COM11" selected="selected">COM11</option>
+        <option value="COM12" selected="selected">COM12</option>
     </select>
-</form>
+    <div id="print">
+
+        <table class="Setting" style="width:100%">
+
+            <tr>
+                <td>item</td>
+                <td>Button </td>
+                <td>message</td>
+
+            </tr>
+            <tr>
+                <td>
+                    <h5>portopen</h5>
+                </td>
+                <td> <input type="button" onclick="serialportopen()" value="open ports"></td>
+                <td>
+                    <h5 id="portopen">portopen</h5>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h5>portclose</h5>
+                </td>
+                <td> <input type="button" onclick="serialportclose()" value="close ports"></td>
+                <td>
+                    <h5 id="portclose">portclose</h5>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <h5>writemessage</h5>
+                </td>
+                <td> <input type="button" onclick="messagewrite()" value="messagewrite"></td>
+                <td>
+                    <h5 id="portwrite">writemessage</h5>
+                </td>
+            </tr>
+
+            <tr>
+                <td>
+                    <h5>Portstatus+connectedport:</h5>
+                </td>
+                <td><input type="button" onclick="portstatus()" value="portstatus"></td>
+                <td>
+                    <h5 id="portstatus">Portstatus:</h5>
+                </td>
+            </tr>
+            <tr style="height:50px">
+                <td>
+                    <h5>Portupdate:</h5> <input type="number" id="pname" name="pname">
+                </td>
+
+                <td> <input type="button" onclick="portupdate()" value="portupdate"></td>
+                <td>
+                    <h5 id="portupdate">Portupdate:</h5>
+                </td>
+            </tr>
+        </table>
+
+    </div>
+
 </body>
 <script>
-     const electron = require('electron');
+    const electron = require('electron');
     const { ipcRenderer } = electron;
     const { SerialPort } = require('serialport')
     const tableify = require('tableify')
@@ -61,10 +174,52 @@
             document.getElementById('ports').innerHTML = tableHTML
         })
     }
-    async function SerialPorts() {
-    let reply = ipcRenderer.sendSync('portopen','a string', 10);
-    console.log(reply)
+    function serialportopen() {
+        let reply = ipcRenderer.sendSync('portopen', 'a string', 10);
+        console.log(reply)
+        document.getElementById("portopen").innerHTML = reply
     }
+
+
+    function serialportclose() {
+        let reply = ipcRenderer.sendSync('portclose', 'a string', 10);
+        console.log(reply)
+        document.getElementById("portclose").innerHTML = reply
+    }
+
+
+    function messagewrite() {
+
+        let reply = ipcRenderer.sendSync('messagewrite', 'a string', 10);
+        console.log(reply)
+        document.getElementById("portwrite").innerHTML = reply
+    }
+    
+    function portstatus() {
+
+        let reply = ipcRenderer.sendSync('portstatus', 'a string', 10);
+        console.log(reply)
+        document.getElementById("portstatus").innerHTML = String(reply)
+    }
+
+
+    function portupdate() {
+        let pt = String("COM" + document.getElementById("pname").value)
+        console.log(pt, typeof (document.getElementById("pname").value))
+        if (Number(document.getElementById("pname").value) > 0) {
+            let reply = ipcRenderer.sendSync('portupdate', pt, 10);
+            console.log(reply)
+            document.getElementById("portupdate").innerHTML = String(reply)
+
+        }
+        else {
+            document.getElementById("portupdate").innerHTML = "Enter valid Input"
+
+        }
+    }
+
+
+
 </script>
 
 </html>
