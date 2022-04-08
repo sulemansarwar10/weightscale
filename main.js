@@ -10,8 +10,7 @@ const store = new Store();
 let weight = 0
 let pt
 if (!store.get('port')) {
-
-  pt = "COM3"
+  pt = "COM4"
 }
 else {
   pt = store.get('port')
@@ -50,10 +49,11 @@ function portclose() {
 function dataon() {
   console.log("porton")
   parser.on('data', function (data) {
-
-    console.log('Received data from port: ' + data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim());
+    if (data.includes("GS"))
+      console.log('Received data from port: ' + data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim());
     console.log('Received data from port: ' + data);
-    weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
+    if (data.includes("GS"))
+      weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
 
   });
 
@@ -91,8 +91,11 @@ app.on('ready', function () {
     protocol: 'file:',
     slashes: true
   }));
+  portopen();
+  dataon();
   // Quit app when closed
   mainWindow.on('closed', function () {
+    portclose();
     portclose();
     app.quit();
   });
@@ -262,14 +265,35 @@ ipcMain.on('messagewrite', (event, someArgument) => {
   }
 
 })
-ipcMain.on('weightvalue', (event, someArgument) => {
-
-
+ipcMain.on('weightvalueauto', (event, someArgument) => {
+  Port.open(function (err) {
+    if (err) {
+      return console.log('Error opening port: ', err.message)
+    }
+    else{
+      Port.write('R', function (err) {
+        if (err) {
+        console.log('Error on write: ', err.message)
+        }
+        else{
+          Port.close(function (err) {
+            if (err) {
+              return console.log('Error closing port: ', err.message)
+            }
+            
+          })
+        }
+      })
+    }
+  })
 
   event.returnValue = weight;
 })
 
+ipcMain.on('weightvalue', (event, someArgument) => {
 
+  event.returnValue = weight;
+})
 
 
 

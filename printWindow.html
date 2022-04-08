@@ -50,6 +50,11 @@
 
             </tr>
             <tr>
+                <td colspan="2"><strong>Ticket #:</strong></td>
+                <td colspan="2" id="ticket">1</td>
+
+            </tr>
+            <tr>
                 <td colspan="2"><strong>First Weight:</strong>(kg)</td>
                 <td colspan="2" id="trolleyp">1</td>
 
@@ -88,8 +93,9 @@
         console.log("print", item)
         document.getElementById("date").innerHTML = item.date
         document.getElementById("time").innerHTML = item.time
-        document.getElementById("scalep").innerHTML = item.firstweight
-        document.getElementById("trolleyp").innerHTML = item.secondweight
+        document.getElementById("ticket").innerHTML = item.ticketno
+        document.getElementById("scalep").innerHTML = item.secondweight
+        document.getElementById("trolleyp").innerHTML = item.firstweight
         document.getElementById("dispatchp").innerHTML = item.netweight
         document.getElementById("remarksp").innerHTML = item.remarks
         await window.print()

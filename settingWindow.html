@@ -71,24 +71,6 @@
         <input type="button" onclick="portupdate()" value="portupdate"> -->
 
         <br>
-
-        <label for="port1">Choose a port:</label>
-        <input type="radio" />
-    </form>
-    <select name="port12" id="port1">
-        <option value="COM1" selected="selected">COM1</option>
-        <option value="COM2" selected="selected">COM2</option>
-        <option value="COM3" selected="selected">COM3</option>
-        <option value="COM4" selected="selected">COM4</option>
-        <option value="COM5" selected="selected">COM5</option>
-        <option value="COM6" selected="selected">COM6</option>
-        <option value="COM7" selected="selected">COM7</option>
-        <option value="COM8" selected="selected">COM8</option>
-        <option value="COM9" selected="selected">COM9</option>
-        <option value="COM10" selected="selected">COM10</option>
-        <option value="COM11" selected="selected">COM11</option>
-        <option value="COM12" selected="selected">COM12</option>
-    </select>
     <div id="print">
 
         <table class="Setting" style="width:100%">
@@ -148,7 +130,7 @@
             </tr>
             <tr style="height:50px">
                 <td>
-                    <h5>Porton:</h5> 
+                    <h5>Porton:</h5>
                 </td>
 
                 <td> <input type="button" onclick="porton()" value="porton"></td>
@@ -174,7 +156,7 @@
             } else {
                 document.getElementById('error').textContent = ''
             }
-            console.log('ports', ports);
+            console.log('ports', ports,ports.length);
 
             if (ports.length === 0) {
                 document.getElementById('error').textContent = 'No ports discovered'
@@ -204,7 +186,7 @@
         console.log(reply)
         document.getElementById("portwrite").innerHTML = reply
     }
-    
+
     function portstatus() {
 
         let reply = ipcRenderer.sendSync('portstatus', 'a string', 10);
@@ -229,10 +211,10 @@
     }
     function porton() {
 
-let reply = ipcRenderer.sendSync('porton', 'a string', 10);
-console.log(reply)
-document.getElementById("porton").innerHTML = String(reply)
-}
+        let reply = ipcRenderer.sendSync('porton', 'a string', 10);
+        console.log(reply)
+        document.getElementById("porton").innerHTML = String(reply)
+    }
 
 
 </script>

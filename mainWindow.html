@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-  <title>Shopping Item</title>
+  <title>Weight Scale</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
 </head>
 
@@ -11,15 +11,15 @@
     <form>
       <div>
         <label>First Weight</label>
-        <input type="number" id="item-first" autofocus>
+        <input type="text" id="item-first" autofocus>
       </div>
       <div>
         <label>Second Weight</label>
-        <input type="number" id="item-second" autofocus>
+        <input type="text" id="item-second" autofocus>
       </div>
       <div>
         <label>Net Weight</label>
-        <input type="number" id="item-net" disabled>
+        <input type="text" id="item-net" disabled>
       </div>
       <div>
         <label>Remarks</label>
@@ -58,16 +58,25 @@
 
     function update() {
       let reply = ipcRenderer.sendSync('weightvalue', 'a string', 10);
-      console.log("weight", reply)
+      console.log("weight", reply,typeof(Number(document.querySelector('#item-first').value)))
+      document.querySelector('#item-first').value = Number(reply)
       //  document.getElementById("portstatus").innerHTML = String(reply)
-
+      ipcRenderer.sendSync('messagewrite', 'a string', 10);
       document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
-      setTimeout(update, 500);
+      setTimeout(update, 1000);
     }
 
-    // Set a timeout that will check for new serialPorts every 2 seconds.
-    // This timeout reschedules itself.
-    setTimeout(update, 500);
+    setTimeout(update, 1000);
+
+
+function weightvalueauto()
+{
+  let reply = ipcRenderer.sendSync('weightvalueauto', 'a string', 10);
+      console.log("weight", reply)
+    
+      document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
+    
+    }
 
   </script>
 
