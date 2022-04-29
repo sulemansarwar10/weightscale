@@ -49,11 +49,12 @@ function portclose() {
 function dataon() {
   console.log("porton")
   parser.on('data', function (data) {
-    if (data.includes("GS"))
-      console.log('Received data from port: ' + data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim());
     console.log('Received data from port: ' + data);
-    if (data.includes("GS"))
-      weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
+    weight = data
+    // if (data.includes("GS"))
+    //   console.log('Received data from port: ' + data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim());
+    // if (data.includes("GS"))
+    //   weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
 
   });
 
@@ -74,15 +75,19 @@ let addWindow;
 let printWindow;
 let settingWindow;
 // Listen for app to be ready
+portopen();
+//if(Port.isOpen)
 app.on('ready', function () {
   // Create new window
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 600,
+    frame: false,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+
     },
   });
   // Load html in window
@@ -91,19 +96,21 @@ app.on('ready', function () {
     protocol: 'file:',
     slashes: true
   }));
-  portopen();
   dataon();
   // Quit app when closed
   mainWindow.on('closed', function () {
     portclose();
     portclose();
+    //mainWindow = null;
     app.quit();
   });
-
+  //mainWindow.setMenuBarVisibility(false)
   // Build menu from template
   const mainMenu = Menu.buildFromTemplate(mainMenuTemplate);
   // Insert menu
-  Menu.setApplicationMenu(mainMenu);
+  //Menu.setApplicationMenu(mainMenu);
+  Menu.setApplicationMenu(null);
+
 });
 
 // Handle add item window
@@ -116,6 +123,7 @@ function createAddWindow() {
       nodeIntegration: true,
       contextIsolation: false,
       enableRemoteModule: true,
+
     }
   });
   addWindow.loadURL(url.format({
@@ -270,17 +278,17 @@ ipcMain.on('weightvalueauto', (event, someArgument) => {
     if (err) {
       return console.log('Error opening port: ', err.message)
     }
-    else{
+    else {
       Port.write('R', function (err) {
         if (err) {
-        console.log('Error on write: ', err.message)
+          console.log('Error on write: ', err.message)
         }
-        else{
+        else {
           Port.close(function (err) {
             if (err) {
               return console.log('Error closing port: ', err.message)
             }
-            
+
           })
         }
       })
@@ -294,7 +302,6 @@ ipcMain.on('weightvalue', (event, someArgument) => {
 
   event.returnValue = weight;
 })
-
 
 
 
@@ -316,6 +323,44 @@ ipcMain.on('item:add', function (e, item) {
   //addWindow.close();
 });
 
+
+ipcMain.on('quiteapp', (event, someArgument) => {
+
+  portclose();
+  //mainWindow = null;
+  if (!Port.isOpen) {
+    event.returnValue = "No Error";
+    app.quit();
+
+  }
+  else {
+
+    event.returnValue = "port is open";
+  }
+})
+
+ipcMain.on('settingapp', (event, someArgument) => {
+
+  if (!settingWindow)
+    createsettingWindow();
+
+})
+ipcMain.on('printpage', (event, someArgument) => {
+
+  if (!printWindow)
+    createprintWindow();
+
+})
+ipcMain.on('showhistory', (event, someArgument) => {
+  if (!addWindow)
+    createAddWindow();
+
+})
+ipcMain.on('developerpage', (event, someArgument) => {
+  mainWindow.toggleDevTools();
+
+
+})
 // Create menu template
 const mainMenuTemplate = [
   // Each object is a dropdown
@@ -341,13 +386,6 @@ const mainMenuTemplate = [
         click() {
           if (!settingWindow)
             createsettingWindow();
-        }
-      },
-      {
-        label: 'Quit',
-        accelerator: process.platform == 'darwin' ? 'Command+Q' : 'Ctrl+Q',
-        click() {
-          app.quit();
         }
       }
     ]

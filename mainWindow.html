@@ -4,29 +4,52 @@
 <head>
   <title>Weight Scale</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+  <style>
+    body {
+
+      margin: 10%;
+
+    }
+  </style>
 </head>
 
 <body>
   <div class="container">
     <form>
-      <div>
-        <label>First Weight</label>
-        <input type="text" id="item-first" autofocus>
-      </div>
-      <div>
-        <label>Second Weight</label>
-        <input type="text" id="item-second" autofocus>
-      </div>
-      <div>
-        <label>Net Weight</label>
-        <input type="text" id="item-net" disabled>
-      </div>
-      <div>
-        <label>Remarks</label>
-        <input type="text" id="item-remarks" autofocus>
-      </div>
-      <button class="waves-effect waves-light btn" id="btn" type="submit">Add Item</button>
-    </form>
+  </div>
+  <button class="waves-effect waves-light btn" id="btn1" type="button" onclick="showhistory()">History</button>
+
+  </div>
+  <button class="waves-effect waves-light btn" id="btn1" type="button" onclick="settingapp()">Settings</button>
+  </div>
+  <button class="waves-effect waves-light btn" id="btn1" type="button" onclick="printpage()">Print Page</button>
+
+  </div>
+  <button class="waves-effect waves-light btn" id="btn1" type="button" onclick="developerpage()">developerpage
+    Page</button>
+  </div>
+  <button class="waves-effect waves-light btn" id="btn1" type="button" onclick="quiteapp()">Quit</button>
+
+  <div>
+    <label>First Weight</label>
+    <input type="text" id="item-first" autofocus>
+  </div>
+  <div>
+    <label>Second Weight</label>
+    <input type="text" id="item-second" autofocus>
+  </div>
+  <div>
+    <label>Net Weight</label>
+    <input type="text" id="item-net" disabled>
+  </div>
+  <div>
+    <label>Remarks</label>
+    <input type="text" id="item-remarks" autofocus>
+  </div>
+  <button class="waves-effect waves-light btn" id="btn" type="submit">Add Item</button>
+
+
+  </form>
   </div>
 
   <script>
@@ -34,7 +57,34 @@
     const { ipcRenderer } = electron;
 
     document.querySelector('form').addEventListener('submit', submitForm);
+    function quiteapp() {
+      let reply = ipcRenderer.sendSync('quiteapp', 'a string', 10);
+      console.log("quitapp", reply)
 
+      //console.log("quit app")
+    }
+    function showhistory() {
+      ipcRenderer.send('showhistory', 'a string', 10);
+
+      console.log("showhistory")
+
+    }
+
+    function settingapp() {
+      ipcRenderer.send('settingapp', 'a string', 10);
+
+      console.log("settingapp")
+    }
+    function printpage() {
+      ipcRenderer.send('printpage', 'a string', 10);
+
+      console.log("printpage")
+    }
+    function developerpage() {
+      ipcRenderer.send('developerpage', 'a string', 10);
+
+      console.log("developerpage")
+    }
     function submitForm(e) {
       e.preventDefault();
       document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
@@ -56,10 +106,15 @@
 
     }
 
+    let weight = 0
     function update() {
       let reply = ipcRenderer.sendSync('weightvalue', 'a string', 10);
-      console.log("weight", reply,typeof(Number(document.querySelector('#item-first').value)))
-      document.querySelector('#item-first').value = Number(reply)
+      console.log("weight", reply, typeof (reply))
+      let data = String(reply)
+      if (data.includes("GS"))
+        weight = Number(data.substring(data.indexOf(",", data.indexOf("GS")) + 2, data.length - 2).trim())
+
+      document.querySelector('#item-first').value = Number(weight)
       //  document.getElementById("portstatus").innerHTML = String(reply)
       ipcRenderer.sendSync('messagewrite', 'a string', 10);
       document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
@@ -69,13 +124,12 @@
     setTimeout(update, 1000);
 
 
-function weightvalueauto()
-{
-  let reply = ipcRenderer.sendSync('weightvalueauto', 'a string', 10);
+    function weightvalueauto() {
+      let reply = ipcRenderer.sendSync('weightvalueauto', 'a string', 10);
       console.log("weight", reply)
-    
+
       document.querySelector('#item-net').value = Number(document.querySelector('#item-first').value) - Number(document.querySelector('#item-second').value)
-    
+
     }
 
   </script>
